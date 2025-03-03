@@ -1,5 +1,5 @@
 const express = require('express');
-const book = require('./models/Book')
+const Book = require('./models/Book')
 const app = express();
 
 
@@ -11,10 +11,11 @@ app.use((req, res, next) => {
 });
 
 app.get('/books', (req, res, next) => {
-  book.find()
+  Book.find()
     .then(books => res.status(200).json(books))
     .catch(error => res.status(400).json({ error }));
 });
+
 
 // app.use((req, res, next) => {
 //   console.log('Requête reçue !');
