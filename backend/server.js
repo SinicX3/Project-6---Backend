@@ -2,7 +2,7 @@ const http = require('http');
 const app = require('./app');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://benoitthery36:2WZkdGVDpJdqhgtz@cluster0.i9hov.mongodb.net/',
+mongoose.connect('mongodb+srv://benoitthery36:2WZkdGVDpJdqhgtz@cluster0.i9hov.mongodb.net/books',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))

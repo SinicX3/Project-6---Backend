@@ -17,23 +17,19 @@ app.get('/books', (req, res, next) => {
 });
 
 
-// app.use((req, res, next) => {
-//   console.log('Requête reçue !');
-//   next();
-// });
+app.post('/books', (req, res, next) => {
+  const newBook = new Book({
+    rating: 3,
+    title: "Milwaukee mission",
+    author: "Elder Cooper",
+    type: "Policier",
+    year: 2021,
+    picture: "picture.png"
+  });
+  newBook.save()
+    .then(books => res.status(200).json(books))
+    .catch(error => res.status(400).json({ error }));
+});
 
-// app.use((req, res, next) => {
-//   res.status(201);
-//   next();
-// });
-
-// app.use((req, res, next) => {
-//   res.json({ message: 'Votre requête a bien été reçue !' });
-//   next();
-// });
-
-// app.use((req, res, next) => {
-//   console.log('Réponse envoyée avec succès !');
-// });
 
 module.exports = app;
