@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 
 const bookRoutes = require('./routes/books')
+const userRoutes = require('./routes/user')
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,5 +12,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/books', bookRoutes);
+app.use('/auth', userRoutes);
 
 module.exports = app;

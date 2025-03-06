@@ -7,4 +7,3 @@ router.get('/books', bookCtrl.getAllBooks);
 router.post('/books', bookCtrl.createBook);
 
 module.exports = router;
-
