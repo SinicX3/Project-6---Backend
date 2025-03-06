@@ -1,7 +1,7 @@
 const express = require('express');
-const Book = require('./models/Book')
 const app = express();
 
+const bookRoutes = require('./routes/books')
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,26 +10,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/books', (req, res, next) => {
-  Book.find()
-    .then(books => res.status(200).json(books))
-    .catch(error => res.status(400).json({ error }));
-});
-
-
-app.post('/books', (req, res, next) => {
-  const newBook = new Book({
-    rating: 3,
-    title: "Milwaukee mission",
-    author: "Elder Cooper",
-    type: "Policier",
-    year: 2021,
-    picture: "picture.png"
-  });
-  newBook.save()
-    .then(books => res.status(200).json(books))
-    .catch(error => res.status(400).json({ error }));
-});
-
+app.use('/books', bookRoutes);
 
 module.exports = app;
