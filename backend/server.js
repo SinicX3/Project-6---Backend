@@ -8,7 +8,7 @@ mongoose.connect('mongodb+srv://benoitthery36:2WZkdGVDpJdqhgtz@cluster0.i9hov.mo
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-app.set('port', process.env.PORT || 3001);
+app.set('port', process.env.PORT || 4000);
 const server = http.createServer(app);
 
-server.listen(process.env.PORT || 3001);
+server.listen(process.env.PORT || 4000);
