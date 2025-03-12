@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');                        // Est-ce qu'il ne faudrait pas plutôt importer auth.js ?
 
 exports.signup = (req, res, next) => {
-  console.log(req.body.password);
+  console.log(req.body);
   bcrypt.hash(req.body.password, 10)                  
     .then (hash => {
       const user = new User({
@@ -17,7 +18,6 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  console.log(req.body.email);
   User.findOne({email: req.body.email})
     .then(user => {
       if (user === null) {
@@ -40,6 +40,7 @@ exports.login = (req, res, next) => {
           })
           .catch(error => {
             res.status(500).json({error});
+            console.log("erreur est :", {error});
           })
       }
     })
