@@ -2,10 +2,11 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 exports.signup = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10)
+  console.log("Requête reçue:", req.body);
+  bcrypt.hash(req.body.password, 10)                  
     .then (hash => {
       const user = new User({
-        email: req.body.email,
+        email: req.body.email,                    
         password: hash
       });
       user.save()

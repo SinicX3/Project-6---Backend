@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bookCtrl = require('../controllers/books')
-const auth = require('../middleware/auth')
+const auth = require('../middleware/auth')                    
 
-router.get('/books', auth, bookCtrl.getAllBooks);
-router.post('/books', auth, bookCtrl.createBook);
+router.get('/', bookCtrl.getAllBooks);
+router.post('/', bookCtrl.createBook);                 // Remettre "auth" une fois que les routes seront valables
 
 module.exports = router;
