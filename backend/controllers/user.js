@@ -3,7 +3,6 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');                        // Est-ce qu'il ne faudrait pas plutôt importer auth.js ?
 
 exports.signup = (req, res, next) => {
-  console.log(req.body);
   bcrypt.hash(req.body.password, 10)                  
     .then (hash => {
       const user = new User({
