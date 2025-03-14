@@ -1,25 +1,18 @@
 const Book = require('../models/Book');
 
 exports.createBook = (req, res, next) => {
-  console.log(req.body);
+  const newBookObject = JSON.parse(req.body.book);
+  console.log(newBookObject)
   const newBook = new Book({
-    // rating: 3,
-    // title: "Milwaukee mission",
-    // author: "Elder Cooper",
-    // type: "Policier",
-    // year: 2021,
-    // picture: "picture.png"
-    rating: req.body.rate,
-    title: req.body.title,
-    author: req.body.author,
-    type: req.body.genre,
-    year: req.body.year,
-    picture: "picture.png"
-  });
+    ...newBookObject,
+    picture: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    ratings: newBookObject.ratings,
+    averageRating: 0
+  })
   console.log(newBook);
-  // newBook.save()
-  //   .then(books => res.status(200).json(books))
-  //   .catch(error => res.status(400).json({ error }));
+  newBook.save()
+    .then(books => res.status(200).json("Livre ajouté avec succès !"))
+    .catch(error => res.status(400).json({ error }));
 };
 
 exports.getAllBooks = (req, res, next) => {
@@ -27,3 +20,19 @@ exports.getAllBooks = (req, res, next) => {
     .then(books => res.status(200).json(books))
     .catch(error => res.status(400).json({ error }));
 };
+
+
+// exports.createThing = (req, res, next) => {
+//   const thingObject = JSON.parse(req.body.thing);
+//   delete thingObject._id;
+//   delete thingObject._userId;
+//   const thing = new Thing({
+//     ...thingObject,
+//     userId: req.auth.userId,
+//     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+//   })
+
+//   thing.save()
+//   .then(() => {res.status(201).json({message: 'Objet enregistré'})})
+//   .catch(error => {res.status(400).json({error})})
+// }
