@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const path = require('path');
 
 const bookRoutes = require('./routes/books')
 const userRoutes = require('./routes/user')
@@ -15,5 +16,6 @@ app.use(express.json());
 
 app.use('/api/books', bookRoutes);
 app.use('/api/auth', userRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
