@@ -21,7 +21,7 @@ exports.getAllBooks = (req, res, next) => {
 };
 
 exports.getBook = (req, res, next) => {
-  Book.findOne({id: req.params._id})                              
+  Book.findOne({_id: req.params.id})                              
     .then(book => res.status(200).json(book))
     .catch(error => res.status(400).json({ error }));
 };
@@ -43,10 +43,15 @@ exports.deleteBook = (req, res, next) => {
     .catch(error => {res.status(500).json({error})});
 };
 
-exports.modifyBook = (req, res, next) => {
+// exports.modifyBook = (req, res, next) => {
 
-};
+// };
 
-exports.rateBook = (req, res, next) => {
-
-};
+// exports.rateBook = (req, res, next) => {
+//   Book.findOne({_id: req.params.id})
+//     .then(() => {
+//       console.log(req.body)
+//       res.status(200)
+//     })
+//     .catch(error => res.status(400).json({message: 'Livre non trouvé !'}))
+// };
