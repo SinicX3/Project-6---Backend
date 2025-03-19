@@ -70,11 +70,7 @@ exports.modifyBook = (req, res, next) => {
     })})
   .catch((error) => res.status(401).json({message: {error}}))};
 
-exports.rateBook = (req, res, next) => {
-  // Book.findOneAndUpdate({_id: req.params.id}, {$push: {ratings: {userId: req.body.userId, grade: req.body.grade}}})
-  //   .then(book => res.status(200).json(book))
-  //   .catch(error => res.status(400).json({ error }));
-    
+exports.rateBook = (req, res, next) => {    
   Book.findOneAndUpdate({_id: req.params.id}, {
       $push: {ratings: {userId: req.body.userId, grade: req.body.grade}},
       $set: {averageRating: 5}
@@ -85,6 +81,6 @@ exports.rateBook = (req, res, next) => {
   
 exports.getBestRated = (req, res, next) => {
   Book.find().sort({averageRating: -1}).limit(3)
-    .then(books => res.status(200).json(books))
+    .then((books) => res.status(200).json(books))
     .catch(error => res.status(400).json({ error }));
 };
