@@ -7,7 +7,7 @@ exports.createBook = (req, res, next) => {
     ...newBookObject,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     ratings: newBookObject.ratings,
-    averageRating: 0,
+    averageRating: newBookObject.ratings,									// Vérifier cette ligne
     userId: req.auth.userId
   })
   newBook.save()
@@ -70,6 +70,21 @@ exports.modifyBook = (req, res, next) => {
     })})
   .catch((error) => res.status(401).json({message: {error}}))};
 
-  exports.rateBook =(req, res, next) => {
+exports.rateBook = (req, res, next) => {
+  // Book.findOneAndUpdate({_id: req.params.id}, {$push: {ratings: {userId: req.body.userId, grade: req.body.grade}}})
+  //   .then(book => res.status(200).json(book))
+  //   .catch(error => res.status(400).json({ error }));
     
-  }
+  Book.findOneAndUpdate({_id: req.params.id}, {
+      $push: {ratings: {userId: req.body.userId, grade: req.body.grade}},
+      $set: {averageRating: 5}
+    })												                                                      // Renvoi du livre ici
+    .then(book => res.status(200).json(book))
+    .catch(error => res.status(400).json({ error }));
+};
+  
+exports.getBestRated = (req, res, next) => {
+  Book.find().sort({averageRating: -1}).limit(3)
+    .then(books => res.status(200).json(books))
+    .catch(error => res.status(400).json({ error }));
+};
