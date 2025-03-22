@@ -1,8 +1,12 @@
 const Book = require('../models/Book');
 const fs = require('fs');
+const sharp = require('sharp'); 
 
 exports.createBook = (req, res, next) => {
   const newBookObject = JSON.parse(req.body.book);
+ 
+                            // Intégrer sharp ici
+ 
   const newBook = new Book({
     ...newBookObject,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
@@ -27,6 +31,7 @@ exports.getBook = (req, res, next) => {
 exports.deleteBook = (req, res, next) => {                                          // Actuellement, les images ne sont pas supprimées du dossier de backend à la suppression
   Book.findOne({_id: req.params.id})
     .then(book => {
+      console.log(book)
       if (book.userId != req.auth.userId) {
         res.status(401).json({message: "Non-autorisé"});
       } else {
@@ -73,10 +78,10 @@ exports.rateBook = (req, res, next) => {
     Book.updateOne({_id: req.params.id}, {
         $push: {ratings: {userId: req.body.userId, grade: req.body.rating}},
         $set: {averageRating: (
-          (req.body.rating + (book.ratings?.reduce((sum, r) => sum + r.grade, 0) || 0)) / ((book.ratings?.length || 0) +1)
+          (req.body.rating + (book.ratings?.reduce((sum, r) => sum + r.grade, 0) || 0)) / ((book.ratings?.length || 0) +1)                  // Il faut arrondir au supérieur
         )}
         })
-    .then(() => res.status(200).json({message: "Note prise en compte!"}))           // Actuellement, ça renvoit un id: undefined en console, l'erreur vient probablement de là
+    .then(() => res.status(200).json(book))                                 // Actuellement, on peut voter deux fois un même livre
     .catch((error) => res.status(401).json({message: {error}}))
   })
   .catch((error) => res.status(401).json({message: {error}}));
