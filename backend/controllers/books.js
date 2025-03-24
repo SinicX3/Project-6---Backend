@@ -4,16 +4,25 @@ const sharp = require('sharp');
 
 exports.createBook = (req, res, next) => {
   const newBookObject = JSON.parse(req.body.book);
- 
-                            // Intégrer sharp ici
- 
-  const newBook = new Book({
-    ...newBookObject,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-  })
-  newBook.save()
-    .then(books => res.status(200).json("Livre ajouté avec succès !"))
-    .catch(error => res.status(400).json({ error }));
+  fs.access("./images", (error) => {
+    if (error) {
+      fs.mkdirSync("./images");
+    }});
+  const timestamp = Date.now();
+  const fileName = `optimized-${timestamp}.webp`
+  sharp(req.file.buffer)
+    .webp({ quality: 20 })
+    .toFile(`./images/${fileName}`)
+    .then(() =>
+      {const newBook = new Book({
+        ...newBookObject,
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${fileName}`
+
+      })
+      newBook.save()
+        .then(books => res.status(200).json("Livre ajouté avec succès !"))
+        .catch(error => res.status(400).json({ error }));
+    })
 };
 
 exports.getAllBooks = (req, res, next) => {
