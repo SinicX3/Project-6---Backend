@@ -37,10 +37,9 @@ exports.getBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 };
 
-exports.deleteBook = (req, res, next) => {                                          // Actuellement, les images ne sont pas supprimées du dossier de backend à la suppression
+exports.deleteBook = (req, res, next) => {
   Book.findOne({_id: req.params.id})
     .then(book => {
-      console.log(book)
       if (book.userId != req.auth.userId) {
         res.status(401).json({message: "Non-autorisé"});
       } else {
@@ -56,48 +55,57 @@ exports.deleteBook = (req, res, next) => {                                      
 };
 
 exports.modifyBook = (req, res, next) => {
-    // On vérifie que le user est le propriétaire du livre
-    Book.findById(req.params.id)
+  // On vérifie que le user est le propriétaire du livre
+  Book.findById(req.params.id)
     .then((book) => {
       if (book.userId !== req.auth.userId) {
         return res.status(403).json({ message: "Unauthorized request" });
       }
-      
-      const BookObject = req.file ? {
-      ...JSON.parse(req.body.book),
-      imageUrl : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-      } : {...req.body};
-  
-        delete BookObject._userId;
-         Book.findOne({_id: req.params.id})
-        .then((book) => {
-        if (book.userId !== req.auth.userId) {
-          res.status(401).json({message : "Non-autorisé"});
-      } else {
-        Book.updateOne({_id: req.params.id}, {...BookObject, _id: req.params.id})
-          .then(() => res.status(200).json({message: "Livre modifié !"}))
-          .catch((error) => res.status(401).json({message: {error}}))
-      }
-    })})
-  .catch((error) => res.status(401).json({message: {error}}))};
 
-exports.rateBook = (req, res, next) => {                      
+      const timestamp = Date.now();
+      const fileName = `optimized-${timestamp}.webp`
+      const bookObject = book;
+      bookObject.imageUrl = `${req.protocol}://${req.get("host")}/images/${fileName}`;
+
+      console.log(book)
+
+      sharp(req.file.buffer)
+        .webp({ quality: 20 })
+        .toFile(`./images/${fileName}`)
+        .then(() => {
+          Book.findOneAndUpdate({_id: req.params.id}, {
+            ...bookObject,
+            imageUrl: `${req.protocol}://${req.get("host")}/images/${fileName}`})
+            .then(() => res.status(200).json({message: "Livre modifié !"}))
+            .catch((error) => res.status(401).json({message: {error}}))
+          })
+      })
+    .catch((error) => res.status(403).json({error}));
+  };
+
+exports.rateBook = (req, res, next) => { 
   Book.findOne({_id: req.params.id})
   .then((book) => {
-    Book.updateOne({_id: req.params.id}, {
-        $push: {ratings: {userId: req.body.userId, grade: req.body.rating}},
-        $set: {averageRating: (
-          (req.body.rating + (book.ratings?.reduce((sum, r) => sum + r.grade, 0) || 0)) / ((book.ratings?.length || 0) +1)                  // Il faut arrondir au supérieur
-        )}
-        })
-    .then(() => res.status(200).json(book))                                 // Actuellement, on peut voter deux fois un même livre
+    if (book.ratings.includes(req.body.userId)) {
+      res.status(401).json({message: "Cet utilisateur a déjà voté ce livre !"})
+    } 
+    else {  
+    Book.findOneAndUpdate({_id: req.params.id}, {
+      $push: {ratings: {userId: req.body.userId, grade: req.body.rating}},
+      $set: {averageRating: (
+        Math.round((req.body.rating + (book.ratings?.reduce((sum, r) => sum + r.grade, 0) || 0)) / ((book.ratings?.length || 0) +1))   // On arrondit au supérieur
+      )}
+      }, { new: true })
+    .then(book => res.status(200).json(book))
     .catch((error) => res.status(401).json({message: {error}}))
-  })
-  .catch((error) => res.status(401).json({message: {error}}));
-};
+    }
+  }
+  )
+  .catch((error) => res.status(403).json({message: {error}}));
+}
   
 exports.getBestRated = (req, res, next) => {
-  Book.find().sort({averageRating: -1, year: -1}).limit(3)                              //Si deux livres ont EXACTEMENT la même note moyenne, on choisit le plus récent
+  Book.find().sort({averageRating: -1, year: -1}).limit(3)                              //Si deux livres ont la même note moyenne, on choisit le plus récent
     .then((books) => {
       res.status(200).json(books)
     })
