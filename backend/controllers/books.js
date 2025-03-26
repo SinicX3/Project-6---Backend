@@ -37,7 +37,7 @@ exports.getBook = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 };
 
-exports.deleteBook = (req, res, next) => {                                          // Actuellement, les images ne sont pas supprimées du dossier de backend à la suppression
+exports.deleteBook = (req, res, next) => {
   Book.findOne({_id: req.params.id})
     .then(book => {
       if (book.userId != req.auth.userId) {
