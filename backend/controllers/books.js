@@ -17,7 +17,6 @@ exports.createBook = (req, res, next) => {
       {const newBook = new Book({
         ...newBookObject,
         imageUrl: `${req.protocol}://${req.get("host")}/images/${fileName}`
-
       })
       newBook.save()
         .then(books => res.status(200).json("Livre ajouté avec succès !"))
@@ -54,33 +53,45 @@ exports.deleteBook = (req, res, next) => {
     .catch(error => {res.status(500).json({error})});
 };
 
-exports.modifyBook = (req, res, next) => {
+exports.modifyBook = async (req, res, next) => {
   // On vérifie que le user est le propriétaire du livre
   Book.findById(req.params.id)
-    .then((book) => {
+    .then(async (book) => {
       if (book.userId !== req.auth.userId) {
         return res.status(403).json({ message: "Unauthorized request" });
       }
 
-      const timestamp = Date.now();
-      const fileName = `optimized-${timestamp}.webp`
-      const bookObject = book;
-      bookObject.imageUrl = `${req.protocol}://${req.get("host")}/images/${fileName}`;
+      img = book.imageUrl
 
-      console.log(book)
+      if (req.file) {
+        const bookObject = JSON.parse(req.body.book);
+        const timestamp = Date.now();
+        const fileName = `optimized-${timestamp}.webp`
+        bookObject.imageUrl = `${req.protocol}://${req.get("host")}/images/${fileName}`;
 
-      sharp(req.file.buffer)
+        await sharp(req.file.buffer)
         .webp({ quality: 20 })
         .toFile(`./images/${fileName}`)
         .then(() => {
-          Book.findOneAndUpdate({_id: req.params.id}, {
-            ...bookObject,
-            imageUrl: `${req.protocol}://${req.get("host")}/images/${fileName}`})
+          Book.findOneAndUpdate({_id: req.params.id}, {...bookObject})
             .then(() => res.status(200).json({message: "Livre modifié !"}))
             .catch((error) => res.status(401).json({message: {error}}))
           })
+      } else {
+        const bookObject = req.body;
+        bookObject.imageUrl = img
+        Book.findOneAndUpdate({_id: req.params.id}, {...bookObject, img})
+          .then((book) => {
+            console.log('test', book)
+            res.status(200).json({message: "Livre modifié !"})})
+          .catch((error) => res.status(401).json({message: {error}}))
+      }
+
       })
-    .catch((error) => res.status(403).json({error}));
+    .catch((error) => {
+      console.log(error.message)
+      res.status(403).json({error})
+    });
   };
 
 exports.rateBook = (req, res, next) => { 
