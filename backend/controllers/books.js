@@ -58,7 +58,7 @@ exports.modifyBook = async (req, res, next) => {
   Book.findById(req.params.id)
     .then(async (book) => {
       if (book.userId !== req.auth.userId) {
-        return res.status(403).json({ message: "Unauthorized request" });
+        res.status(403).json({ message: "Unauthorized request" });
       }
 
       img = book.imageUrl
@@ -78,6 +78,7 @@ exports.modifyBook = async (req, res, next) => {
             .catch((error) => res.status(401).json({message: {error}}))
           })
       } else {
+        //Si le champ image n'a pas été modifié, on ne peut pas PARSE le req.body. On va donc y accéder différemment
         const bookObject = req.body;
         bookObject.imageUrl = img
         Book.findOneAndUpdate({_id: req.params.id}, {...bookObject, img})
