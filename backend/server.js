@@ -1,10 +1,11 @@
 const http = require('http');
 const app = require('./app');
 const mongoose = require('mongoose');
+require('dotenv').config();
 
-mongoose.connect('mongodb+srv://benoitthery36:2WZkdGVDpJdqhgtz@cluster0.i9hov.mongodb.net/api',
-  { useNewUrlParser: true,
-    useUnifiedTopology: true })
+const dbURI = process.env.DB_URI;
+
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true }) // On charge la connexion à mongoDB avec un fichier .env.
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
